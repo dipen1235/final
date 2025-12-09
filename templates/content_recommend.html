@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Content-Based Movie Recommender</title>
+
+    <!-- Bootstrap 3 CSS -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+          rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: black;
+        }
+
+        .text-white {
+            color: white;
+        }
+
+        .navbar-brand, .navbar-nav > li > a {
+            color: #fff !important;
+        }
+
+        /* Select2 on light background */
+        .select2-container .select2-selection--single {
+            background-color: #fff !important;
+            color: #000 !important;
+            border: 1px solid #ccc !important;
+            height: 34px !important;
+        }
+
+        .select2-selection__rendered {
+            color: #000 !important;
+            line-height: 32px !important;
+        }
+
+        .select2-selection__arrow {
+            height: 32px !important;
+        }
+
+        .select2-results__option {
+            color: #000 !important;
+            background-color: #fff !important;
+        }
+
+        .select2-results__option--highlighted {
+            background-color: #007bff !important;
+            color: #fff !important;
+        }
+
+        .select2-search__field {
+            color: #000 !important;
+        }
+
+        .select2-container .select2-dropdown {
+            background: #fff !important;
+        }
+
+        .movie-card {
+            margin-top: 30px;
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar" style="background-color:#00a65a">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{{ url_for('home') }}">My Movie Recommender</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="active"><a href="{{ url_for('content_page') }}">Content Based</a></li>
+            <li><a href="{{ url_for('collab_page') }}">Collaborative</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-white" style="font-size:50px">Content-Based Recommendations</h1>
+
+            <!-- Searchable dropdown form -->
+            <form method="POST"
+                  action="{{ url_for('content_page') }}"
+                  class="mb-4 text-center">
+
+                <select id="movieSelect" name="movie_name" class="form-control"
+                        style="width:50%; margin: 0 auto;">
+                    {% for movie in movie_list %}
+                        <option value="{{ movie }}" {% if selected_movie == movie %}selected{% endif %}>
+                            {{ movie }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-primary mt-3" style="margin-top:15px;">
+                    Show Recommendations
+                </button>
+            </form>
+        </div>
+
+        {% if recommendations %}
+            {% for rec in recommendations %}
+                <div class="col-md-2 movie-card">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            {% if rec.poster %}
+                                <img src="{{ rec.poster }}" alt="{{ rec.title }}" class="movie-poster">
+                            {% endif %}
+                            <h4 class="text-white" style="margin-top:10px;">{{ rec.title }}</h4>
+                            {% if rec.movie_id is defined %}
+                                <p class="text-white">ID: {{ rec.movie_id }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfHgbbYVBoPsW7Zvh4l9WvvoEH3sl0sibVcOQVnN"
+        crossorigin="anonymous"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#movieSelect').select2({
+        placeholder: "Search for a movie...",
+        allowClear: true,
+        width: '50%'
+    });
+
+    $('#movieSelect').on('select2:open', function() {
+        document.querySelector('.select2-search__field').focus();
+    });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: src
+Version: 0.0.1
+Summary: Recommender System
+Author: Dpen
+Author-email: depain1235@gmail.com
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: streamlit
+
+Movie Recommender System
+using content based and collaborative filtering
