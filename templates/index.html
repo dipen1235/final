@@ -2,34 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Movie Recommender - Home</title>
+    <title>My Movie Recommender</title>
 
-    <!-- Bootstrap 3 CSS -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7Zvh4l9WvvoEH3sl0sibVcOQVnN"
           crossorigin="anonymous">
+
     <style>
         body {
-            background-color: black;
-            color: white;
+            background-color: #000;
+            color: #fff;
         }
-        .center-box {
-            margin-top: 80px;
-            text-align: center;
+
+        body.light-theme {
+            background-color: #f5f5f5;
+            color: #000;
         }
-        .mode-card {
-            background-color: #111;
-            border-radius: 8px;
-            padding: 30px;
-            margin-top: 30px;
-            border: 1px solid #333;
+
+        body.light-theme .panel {
+            background-color: #fff;
+            color: #000;
         }
-        .btn-mode {
-            margin-top: 15px;
+
+        body.light-theme .navbar {
+            background-color: #f8f8f8 !important;
+            border-color: #e7e7e7;
         }
+
+        body.light-theme .navbar-brand,
+        body.light-theme .navbar-nav > li > a {
+            color: #000 !important;
+        }
+
         .navbar-brand, .navbar-nav > li > a {
             color: #fff !important;
+        }
+
+        .hero {
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: #ddd;
+        }
+
+        body.light-theme .hero p {
+            color: #555;
+        }
+
+        .mode-toggle-btn {
+            margin-right: 15px;
+        }
+
+        .reco-card {
+            margin-top: 40px;
+        }
+
+        .reco-card .panel {
+            background-color: #111;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .reco-card .panel-heading {
+            border-bottom: none;
+        }
+
+        body.light-theme .reco-card .panel {
+            background-color: #fff;
+            border-color: #ddd;
         }
     </style>
 </head>
@@ -45,44 +94,75 @@
             <li><a href="{{ url_for('content_page') }}">Content Based</a></li>
             <li><a href="{{ url_for('collab_page') }}">Collaborative</a></li>
         </ul>
+
+        <button id="themeToggle" class="btn btn-default navbar-btn navbar-right mode-toggle-btn">
+            Light Mode
+        </button>
     </div>
 </nav>
 
-<div class="container center-box">
-    <h1 style="font-size:48px; margin-bottom:10px;">Movie Recommender System</h1>
-    <p style="font-size:18px; color:#ccc;">Choose a recommendation mode</p>
+<div class="container">
+    <div class="hero">
+        <h1>Welcome to My Movie Recommender</h1>
+        <p>Discover movies using <strong>content-based</strong> similarity or <strong>collaborative</strong> filtering.</p>
+        <p>Choose a method below to get started.</p>
+    </div>
 
     <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-
-            <div class="mode-card">
-                <h3>Content-Based Recommender</h3>
-                <p style="color:#bbb;">
-                    Get movies similar to a selected movie based on its content (genres, overview, etc.).
-                </p>
-                <a href="{{ url_for('content_page') }}" class="btn btn-primary btn-mode">
-                    Go to Content-Based
-                </a>
+        <div class="col-sm-6 reco-card">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Content-Based Recommender</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Find movies similar in content (genre, overview, etc.) to a movie you love.</p>
+                    <a href="{{ url_for('content_page') }}" class="btn btn-primary">Go to Content-Based</a>
+                </div>
             </div>
+        </div>
 
-            <div class="mode-card">
-                <h3>Collaborative Filtering Recommender</h3>
-                <p style="color:#bbb;">
-                    Get recommendations based on user behavior and similar user preferences.
-                </p>
-                <a href="{{ url_for('collab_page') }}" class="btn btn-success btn-mode">
-                    Go to Collaborative
-                </a>
+        <div class="col-sm-6 reco-card">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Collaborative Filtering</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Discover movies liked by other users who enjoyed the same titles.</p>
+                    <a href="{{ url_for('collab_page') }}" class="btn btn-success">Go to Collaborative</a>
+                </div>
             </div>
-
         </div>
     </div>
 </div>
 
-<!-- JS (optional here, no Select2 on this page) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfHgbbYVBoPsW7Zvh4l9WvvoEH3sl0sibVcOQVnN"
         crossorigin="anonymous"></script>
+
+<script>
+(function() {
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            $('body').addClass('light-theme');
+            $('#themeToggle').text('Dark Mode');
+        } else {
+            $('body').removeClass('light-theme');
+            $('#themeToggle').text('Light Mode');
+        }
+    }
+
+    var storedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(storedTheme);
+
+    $('#themeToggle').on('click', function() {
+        var current = $('body').hasClass('light-theme') ? 'light' : 'dark';
+        var next = current === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+    });
+})();
+</script>
+
 </body>
 </html>
