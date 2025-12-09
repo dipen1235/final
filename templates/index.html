@@ -80,6 +80,39 @@
             background-color: #fff;
             border-color: #ddd;
         }
+
+                .btn-content {
+            background-color: #337ab7;   /* blue */
+            border-color: #2e6da4;
+            color: #fff;
+            border-radius: 25px;        /* pill shape (optional) */
+            padding: 8px 20px;
+            font-weight: 600;
+        }
+
+        .btn-content:hover,
+        .btn-content:focus {
+            background-color: #286090;
+            border-color: #204d74;
+            color: #fff;
+        }
+
+        .btn-collab {
+            background-color: #00a65a;  /* green to match navbar */
+            border-color: #008f4f;
+            color: #fff;
+            border-radius: 25px;        /* pill shape (optional) */
+            padding: 8px 20px;
+            font-weight: 600;
+        }
+
+        .btn-collab:hover,
+        .btn-collab:focus {
+            background-color: #008f4f;
+            border-color: #007a43;
+            color: #fff;
+        }
+
     </style>
 </head>
 <body>
@@ -116,7 +149,8 @@
                 </div>
                 <div class="panel-body">
                     <p>Find movies similar in content (genre, overview, etc.) to a movie you love.</p>
-                    <a href="{{ url_for('content_page') }}" class="btn btn-primary">Go to Content-Based</a>
+                    <a href="{{ url_for('content_page') }}" class="btn btn-content">Go to Content-Based</a>
+
                 </div>
             </div>
         </div>
@@ -128,7 +162,8 @@
                 </div>
                 <div class="panel-body">
                     <p>Discover movies liked by other users who enjoyed the same titles.</p>
-                    <a href="{{ url_for('collab_page') }}" class="btn btn-success">Go to Collaborative</a>
+                    <a href="{{ url_for('collab_page') }}" class="btn btn-collab">Go to Collaborative</a>
+
                 </div>
             </div>
         </div>
