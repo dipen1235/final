@@ -1,2 +1,4 @@
 __pycache__/
 .env
+model/content_pkl/similarity.pkl
+model/collab_pkl/cosine_sim.pkl

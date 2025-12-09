@@ -27,25 +27,37 @@ def download_if_missing(url, path):
 def safe_load_pickle(path, name):
     """
     Safely load a pickle file.
-    - Detects if the file is actually an HTML page (e.g. Google Drive warning).
+    - Detects if the file is actually an HTML page (e.g. Drive/Dropbox warning).
     - Returns None instead of raising if anything goes wrong.
     """
+    if not os.path.exists(path):
+        print(f"WARNING: {name} file not found at {path}")
+        return None
+
     try:
         with open(path, "rb") as f:
-            head = f.read(1024)
+            head = f.read(2048)
             # Try to detect HTML instead of pickle
             try:
                 text_head = head.decode(errors="ignore").lower()
             except Exception:
                 text_head = ""
 
-            if "<html" in text_head or "<!doctype html" in text_head or "google" in text_head:
+            if "<html" in text_head or "<!doctype html" in text_head:
                 print(f"WARNING: {name} appears to be HTML (likely a web page), not a pickle file.")
                 return None
 
             # Reset and load as pickle
             f.seek(0)
-            return pickle.load(f)
+            obj = pickle.load(f)
+
+            print(f"DEBUG: Loaded {name} successfully. type={type(obj)}")
+            # If it's a numpy array or similar, try to print shape
+            shape = getattr(obj, "shape", None)
+            if shape is not None:
+                print(f"DEBUG: {name} shape = {shape}")
+
+            return obj
 
     except Exception as e:
         print(f"WARNING: Failed to load {name} from {path}: {e}")
@@ -56,9 +68,14 @@ def safe_load_pickle(path, name):
 # --------------------- BIG MODEL URLS & PATHS ----------------------
 # ===================================================================
 
-# You can later replace these with Dropbox / GitHub Releases direct links.
-SIMILARITY_URL = "https://drive.google.com/uc?export=download&id=1dzMH_3hp7-Y04hQfW8fJPo5CRqe8Nw8s"
-COSINE_URL     = "https://drive.google.com/uc?export=download&id=12Crd2Mm1AmS7trMWcyGWxNWwNQnQJsaD"
+# Using Dropbox for similarity.pkl
+SIMILARITY_URL = (
+    "https://dl.dropboxusercontent.com/scl/fi/dm0ge53sgfo1kgrm1z73i/"
+    "similarity.pkl?rlkey=gcc58x0oyuaitb3yhti3yknrb&st=l78hm9w1&dl=1"
+)
+
+# cosine_sim still from Google Drive (you can move this to Dropbox later)
+COSINE_URL = "https://drive.google.com/uc?export=download&id=12Crd2Mm1AmS7trMWcyGWxNWwNQnQJsaD"
 
 SIMILARITY_PATH = "model/content_pkl/similarity.pkl"
 COSINE_PATH     = "model/collab_pkl/cosine_sim.pkl"
@@ -69,7 +86,7 @@ download_if_missing(COSINE_URL,     COSINE_PATH)
 
 # Try loading them safely (may be None if download failed / HTML returned)
 similarity_content = safe_load_pickle(SIMILARITY_PATH, "similarity.pkl")
-cosine_sim         = safe_load_pickle(COSINE_PATH, "cosine_sim.pkl")  # currently unused, but kept for future use
+cosine_sim         = safe_load_pickle(COSINE_PATH, "cosine_sim.pkl")  # currently unused
 
 
 # ===================================================================
@@ -78,17 +95,21 @@ cosine_sim         = safe_load_pickle(COSINE_PATH, "cosine_sim.pkl")  # currentl
 
 # Smaller files that SHOULD be shipped with your repo
 movies_list = pickle.load(open('model/content_pkl/movie_list.pkl', 'rb'))
+print(f"DEBUG: movies_list loaded, length={len(movies_list)}")
 
 
 # ===================================================================
 # -------------------- COLLABORATIVE FILTERING DATA ------------------
 # ===================================================================
 
-movies       = pd.read_csv('csv/movies.csv')
-popular_df   = pickle.load(open('model/popular.pkl', 'rb'))
-pt           = pickle.load(open('model/pt.pkl', 'rb'))
-movies_cf    = pickle.load(open('model/movies.pkl', 'rb'))
+movies        = pd.read_csv('csv/movies.csv')
+popular_df    = pickle.load(open('model/popular.pkl', 'rb'))
+pt            = pickle.load(open('model/pt.pkl', 'rb'))
+movies_cf     = pickle.load(open('model/movies.pkl', 'rb'))
 similarity_cf = pickle.load(open('model/similarity_scores.pkl', 'rb'))
+
+print(f"DEBUG: pt index length = {len(pt.index)}")
+print(f"DEBUG: movies.csv rows = {len(movies)}")
 
 
 # ===================================================================
@@ -115,23 +136,33 @@ def recommend_content(movie):
         return []
 
     if movie not in movies_list['title'].values:
+        print(f"WARNING: '{movie}' not found in movies_list titles.")
         return []
 
     index = movies_list[movies_list['title'] == movie].index[0]
+
+    try:
+        row = similarity_content[index]
+    except Exception as e:
+        print(f"ERROR: Failed to index similarity_content with index {index}: {e}")
+        return []
+
     distances = sorted(
-        list(enumerate(similarity_content[index])),
+        list(enumerate(row)),
         key=lambda x: x[1],
         reverse=True
     )
 
     recommended = []
-    for i in distances[0:5]:
+    for i in distances[1:6]:   # skip [0] because it's the same movie
         movie_id = movies_list.iloc[i[0]].movie_id
         recommended.append({
             "title": movies_list.iloc[i[0]].title,
             "movie_id": int(movie_id),
             "poster": fetch_poster(movie_id)
         })
+
+    print(f"DEBUG: recommend_content for '{movie}' returned {len(recommended)} items.")
     return recommended
 
 
@@ -141,6 +172,7 @@ def recommend_collab(movie_name):
     Recommend similar movies using collaborative filtering.
     """
     if movie_name not in pt.index:
+        print(f"WARNING: '{movie_name}' not found in pt index.")
         return []
 
     index = np.where(pt.index == movie_name)[0][0]
@@ -168,6 +200,7 @@ def recommend_collab(movie_name):
             "poster": fetch_poster(movie_id)
         })
 
+    print(f"DEBUG: recommend_collab for '{movie_name}' returned {len(recommendations)} items.")
     return recommendations
 
 
@@ -187,18 +220,26 @@ def content_page():
     movie_list_titles = movies_list['title'].values
     selected_movie = None
     recommendations = None
+    error = None
+    model_loaded = similarity_content is not None
 
-    if request.method == "POST":
+    if not model_loaded:
+        error = "Content-based recommendation model is not available on the server (similarity.pkl failed to load)."
+    elif request.method == "POST":
         selected_movie = request.form.get("movie_name")
+        print(f"DEBUG: /content POST, selected_movie = {selected_movie!r}")
         recommendations = recommend_content(selected_movie)
+        if not recommendations:
+            error = "No recommendations could be generated. Please try another movie."
 
     return render_template(
         "content_recommend.html",
         movie_list=movie_list_titles,
         selected_movie=selected_movie,
-        recommendations=recommendations
+        recommendations=recommendations,
+        error=error,
+        model_loaded=model_loaded
     )
-
 
 # ---------- COLLABORATIVE ------------
 @app.route("/collab", methods=["GET", "POST"])
