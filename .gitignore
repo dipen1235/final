@@ -1,3 +1,4 @@
-model/collab_pkl/
-model/content_pkl/
-*.pkl
+model/collab_pkl/cosine_sim.pkl
+model/content_pkl/similarity.pkl
+__pycache__/
+.env
