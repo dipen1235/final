@@ -4,305 +4,422 @@
     <meta charset="UTF-8">
     <title>Collaborative Movie Recommender</title>
 
+    <!-- Bootstrap 3 -->
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7Zvh4l9WvvoEH3sl0sibVcOQVnN"
-          crossorigin="anonymous">
+          href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
-          rel="stylesheet" />
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 
     <style>
+        /* ===== GLOBAL THEME ===== */
         body {
-            background-color: black;
+            background: radial-gradient(circle at top, #222 0%, #000 55%, #020716 100%);
             color: #fff;
+            min-height: 100vh;
         }
+
         body.light-theme {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf5 100%);
             color: #000;
         }
-        body.light-theme .navbar {
-            background-color: #f8f8f8 !important;
-            border-color: #e7e7e7;
+
+        /* ===== GLASS NAVBAR (non-floating) ===== */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
         }
-        body.light-theme .navbar-brand,
-        body.light-theme .navbar-nav > li > a {
+
+        body.light-theme .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            color: #fff !important;
+            transition: 0.3s;
+        }
+
+        body.light-theme .navbar-brand {
             color: #000 !important;
         }
 
-        .text-white {
-            color: white;
-        }
-        body.light-theme .text-white {
-            color: #000;
+        .nav > li > a {
+            font-weight: 600;
+            color: #ddd !important;
+            font-size: 14px;
+            padding: 8px 14px !important;
+            border-radius: 999px;
+            transition: 0.2s ease;
         }
 
-        .navbar-brand, .navbar-nav > li > a {
+        .nav > li > a:hover {
+            background: rgba(255, 255, 255, 0.12);
             color: #fff !important;
         }
 
-        .select2-container .select2-selection--single {
-            background-color: #fff !important;
-            color: #000 !important;
-            border: 1px solid #ccc !important;
-            height: 34px !important;
+        .nav > li.active > a {
+            background: linear-gradient(135deg, #2962ff, #00bcd4);
+            color: #fff !important;
+            box-shadow: 0 0 14px rgba(0, 188, 212, 0.8);
         }
 
-        .select2-selection__rendered {
-            color: #000 !important;
-            line-height: 32px !important;
+        body.light-theme .nav > li > a {
+            color: #444 !important;
         }
 
-        .select2-selection__arrow {
-            height: 32px !important;
+        body.light-theme .nav > li > a:hover {
+            background: rgba(0, 0, 0, 0.06);
+            color: #000 !important;
+        }
+
+        body.light-theme .nav > li.active > a {
+            box-shadow: 0 0 14px rgba(33, 150, 243, 0.7);
+        }
+
+        .btn-theme-toggle {
+            background: linear-gradient(135deg, #00c853, #64dd17);
+            border: none;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 999px;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(0, 200, 83, 0.35);
+            transition: 0.2s;
+        }
+
+        .btn-theme-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 200, 83, 0.55);
+        }
+
+        /* ===== PAGE WRAPPER ===== */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 40px auto 60px auto;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .page-subtitle {
+            font-size: 15px;
+            color: #bbbbbb;
+            margin-bottom: 20px;
+        }
+
+        body.light-theme .page-subtitle {
+            color: #555;
+        }
+
+        /* ===== SEARCH FORM ===== */
+        .search-form {
+            max-width: 500px;
+            margin: 10px auto 0 auto;
+        }
+
+        .btn-main-collab {
+            background: linear-gradient(135deg, #00c853, #64dd17);
+            border: none;
+            padding: 8px 26px;
+            border-radius: 999px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.45);
+        }
+
+        .btn-main-collab:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 16px rgba(0,200,83,0.7);
+        }
+
+        /* ===== SELECT2 DARK/LIGHT ===== */
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            height: 34px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #000;
+            line-height: 32px;
+            padding-left: 8px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 32px;
+        }
+
+        .select2-dropdown {
+            background-color: #fff;
+            border: 1px solid #555;
         }
 
         .select2-results__option {
-            color: #000 !important;
-            background-color: #fff !important;
+            color: #000;
         }
 
         .select2-results__option--highlighted {
-            background-color: #007bff !important;
+            background-color: #00c853 !important;
             color: #fff !important;
         }
 
-        .select2-search__field {
-            color: #000 !important;
-        }
-
-        .select2-container .select2-dropdown {
-            background: #fff !important;
+        /* ===== MOVIE GRID ===== */
+        .movie-grid {
+            margin-top: 25px;
         }
 
         .movie-card {
-            margin-top: 30px;
+            width: 170px;
+            display: inline-block;
+            vertical-align: top;
+            margin: 14px 10px;
         }
 
         .movie-card .card {
-            background: transparent;
-            border: none;
-            position: relative;
-            overflow: hidden;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 22px rgba(0,0,0,0.55);
+        }
+
+        .movie-card .card:hover {
+            box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+            border-color: rgba(0, 200, 83, 0.8);
+        }
+
+        body.light-theme .movie-card .card {
+            background: #ffffff;
+            border-color: rgba(0,0,0,0.08);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+        }
+
+        body.light-theme .movie-card .card:hover {
+            box-shadow: 0 12px 26px rgba(0,0,0,0.18);
+            border-color: rgba(0, 200, 83, 0.6);
         }
 
         .movie-poster {
             width: 100%;
-            height: 220px;
+            height: 230px;
             object-fit: cover;
-            border-radius: 4px;
-            transition: transform 0.3s ease, filter 0.3s ease;
+            border-radius: 8px;
         }
 
-        .movie-card:hover .movie-poster {
-            transform: scale(1.05);
-            filter: brightness(0.5);
+        .movie-title {
+            height: 32px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px;
+            margin-top: 8px;
         }
 
-        .movie-hover {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.85);
-            color: #fff;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.25s ease, visibility 0.25s ease;
-            overflow-y: auto;
+        .movie-year {
+            height: 14px;
+            margin-bottom: 6px;
             font-size: 12px;
-        }
-
-        .movie-card:hover .movie-hover {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .hover-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .hover-meta {
-            font-size: 11px;
-            margin-bottom: 5px;
-            color: #ccc;
-        }
-
-        .hover-overview {
-            font-size: 11px;
-            line-height: 1.4;
+            opacity: 0.8;
         }
 
         .rating-stars {
-            font-size: 12px;
+            height: 16px;
+            font-size: 11px;
             color: #ffc107;
-            margin-bottom: 4px;
         }
 
-        .mode-toggle-btn {
-            margin-right: 15px;
+        .card-body {
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .info-btn {
+            margin-top: 5px;
         }
     </style>
 </head>
-
 <body>
 
-<nav class="navbar" style="background-color:#00a65a">
+<nav class="navbar glass-nav">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="{{ url_for('home') }}">My Movie Recommender</a>
         </div>
+
         <ul class="nav navbar-nav">
             <li><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('content_page') }}">Content Based</a></li>
             <li class="active"><a href="{{ url_for('collab_page') }}">Collaborative</a></li>
         </ul>
 
-        <button id="themeToggle" class="btn btn-default navbar-btn navbar-right mode-toggle-btn">
+        <button id="themeToggle" class="btn btn-theme-toggle navbar-btn navbar-right">
             Light Mode
         </button>
     </div>
 </nav>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1 class="text-white" style="font-size:50px">Collaborative Filtering Recommendations</h1>
+<div class="page-wrapper">
 
-            <form method="POST"
-                  action="{{ url_for('collab_page') }}"
-                  class="mb-4 text-center">
+    <h1 class="page-title">Collaborative Filtering</h1>
+    <div class="page-subtitle">
+        Movies enjoyed by similar users — choose a title to get recommendations.
+    </div>
 
-                <select id="movieSelect" name="movie_name" class="form-control"
-                        style="width:50%; margin: 0 auto;">
-                    {% for movie in movie_list %}
-                        <option value="{{ movie }}" {% if selected_movie == movie %}selected{% endif %}>
-                            {{ movie }}
-                        </option>
-                    {% endfor %}
-                </select>
+    <!-- Search -->
+    <form method="POST" action="{{ url_for('collab_page') }}" class="search-form">
+        <select id="movieSelect" name="movie_name" class="form-control">
+            {% for movie in movie_list %}
+                <option value="{{ movie }}" {% if selected_movie == movie %}selected{% endif %}>
+                    {{ movie }}
+                </option>
+            {% endfor %}
+        </select>
 
-                <button class="btn btn-success mt-3" style="margin-top:15px;">
-                    Show Recommendations
-                </button>
-            </form>
-        </div>
+        <button type="submit" class="btn-main-collab">
+            Show Recommendations
+        </button>
+    </form>
 
-        {% if recommendations %}
+    <!-- Recommendations -->
+    {% if recommendations %}
+        <div class="movie-grid">
             {% for rec in recommendations %}
-                <div class="col-md-2 movie-card">
+                <div class="movie-card">
                     <div class="card">
-                        <div class="card-body text-center">
+                        <div class="card-body">
+
                             {% if rec.poster %}
                                 <img src="{{ rec.poster }}" alt="{{ rec.title }}" class="movie-poster">
                             {% endif %}
-                            <h4 class="text-white" style="margin-top:10px;">{{ rec.title }}</h4>
+
+                            <div class="movie-title">
+                                {{ rec.title }}
+                            </div>
+
                             {% if rec.year %}
-                                <p class="text-white">({{ rec.year }})</p>
+                                <div class="movie-year">
+                                    ({{ rec.year }})
+                                </div>
                             {% endif %}
 
                             {% if rec.rating_5 is defined %}
                                 <div class="rating-stars">
-                                    {% set full_stars = rec.rating_5|round(0, 'floor')|int %}
-                                    {% set half_star = 1 if rec.rating_5 - full_stars >= 0.5 else 0 %}
-                                    {% set empty_stars = 5 - full_stars - half_star %}
-                                    {% for _ in range(full_stars) %}★{% endfor %}
-                                    {% if half_star %}☆{% endif %}
-                                    {% for _ in range(empty_stars) %}☆{% endfor %}
-                                    <span style="font-size:11px;">({{ rec.rating_5 }}/5)</span>
+                                    {% set full = rec.rating_5|round(0,'floor')|int %}
+                                    {% set half = 1 if rec.rating_5 - full >= 0.5 else 0 %}
+                                    {% set empty = 5 - full - half %}
+                                    {% for _ in range(full) %}★{% endfor %}
+                                    {% if half %}☆{% endif %}
+                                    {% for _ in range(empty) %}☆{% endfor %}
+                                    ({{ rec.rating_5 }}/5)
                                 </div>
                             {% endif %}
 
-                            <button type="button"
-                                    class="btn btn-xs btn-info"
-                                    onclick="openTrailer({{ rec.movie_id }})">
-                                Watch Trailer
+                            <!-- INFO BUTTON -->
+                            <button class="btn btn-info btn-xs info-btn"
+                                    onclick="showInfoModal(
+                                        '{{ rec.title|escape }}',
+                                        '{{ rec.year|default('N/A') }}',
+                                        '{{ rec.poster|default('') }}',
+                                        `{{ rec.details|default('No details available')|replace('`','\\`') }}`,
+                                        '{{ rec.rating_5|default('N/A') }}'
+                                    )">
+                                Info
                             </button>
 
-                            <div class="movie-hover text-left">
-                                <div class="hover-title">{{ rec.title }}</div>
-                                {% if rec.year %}
-                                    <div class="hover-meta">Year: {{ rec.year }}</div>
-                                {% endif %}
-                                {% if rec.rating_5 is defined %}
-                                    <div class="hover-meta">Rating: {{ rec.rating_5 }}/5</div>
-                                {% endif %}
+                            <!-- TRAILER BUTTON -->
+                            <button class="btn btn-primary btn-xs"
+                                    onclick="openTrailer({{ rec.movie_id }})">
+                                Trailer
+                            </button>
 
-                                {% if rec.details is defined %}
-                                    <div class="hover-overview">
-                                        {{ rec.details|replace('\n', '<br>')|safe }}
-                                    </div>
-                                {% else %}
-                                    <div class="hover-overview">
-                                        No extra details available.
-                                    </div>
-                                {% endif %}
-                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
+
 </div>
 
-<!-- Trailer Modal -->
-<div id="trailerModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trailerModalLabel">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content" style="background-color:#000;">
+<!-- Info Modal -->
+<div id="infoModal" class="modal fade">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content" style="background:#111; color:#fff; border-radius:10px;">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"
-                aria-label="Close" onclick="closeTrailer()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title" id="trailerModalLabel">Movie Trailer</h4>
+        <button class="close" onclick="$('#infoModal').modal('hide')" style="color:#fff;">×</button>
+        <h4 class="modal-title" id="infoTitle"></h4>
       </div>
       <div class="modal-body" style="text-align:center;">
-        <iframe id="trailerIframe"
-                width="100%"
-                height="450"
-                src=""
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-        </iframe>
+
+        <img id="infoPoster"
+             src=""
+             style="width:100%; border-radius:8px; margin-bottom:10px;">
+
+        <p><strong>Year:</strong> <span id="infoYear"></span></p>
+        <p><strong>Rating:</strong> <span id="infoRating"></span></p>
+        <p style="margin-top:10px;"><strong>Overview:</strong></p>
+        <p id="infoDetails" style="white-space:pre-line; text-align:left;"></p>
+
       </div>
     </div>
   </div>
 </div>
 
+<!-- Trailer Modal -->
+<div id="trailerModal" class="modal fade">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background:#000;">
+      <div class="modal-header">
+        <button class="close" onclick="closeTrailer()" style="color:white;">×</button>
+        <h4 class="modal-title">Movie Trailer</h4>
+      </div>
+      <div class="modal-body">
+        <iframe id="trailerIframe" width="100%" height="450" frameborder="0"
+                allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfHgbbYVBoPsW7Zvh4l9WvvoEH3sl0sibVcOQVnN"
-        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
 var TMDB_API_KEY = "c4e0cda33ee220d70e5882632cec6bc8";
 
+/* -------- TRAILER -------- */
 function openTrailer(movieId) {
-    var url = "https://api.themoviedb.org/3/movie/" + movieId + "/videos?api_key=" +
-        TMDB_API_KEY + "&language=en-US";
-
-    $.getJSON(url, function(data) {
-        if (data.results && data.results.length > 0) {
-            var trailer = data.results.find(function(v) {
-                return v.site === "YouTube" && v.type === "Trailer";
-            }) || data.results[0];
-
-            var embedUrl = "https://www.youtube.com/embed/" + trailer.key;
-            $("#trailerIframe").attr("src", embedUrl);
-            $("#trailerModal").modal("show");
-        } else {
-            alert("Trailer not available for this movie.");
+    $.getJSON(
+        "https://api.themoviedb.org/3/movie/" + movieId + "/videos?api_key=" + TMDB_API_KEY,
+        function(data) {
+            if (data.results && data.results.length > 0) {
+                let t = data.results.find(v => v.site === "YouTube") || data.results[0];
+                $("#trailerIframe").attr("src", "https://www.youtube.com/embed/" + t.key);
+                $("#trailerModal").modal("show");
+            } else alert("Trailer not available.");
         }
-    }).fail(function() {
-        alert("Failed to load trailer.");
-    });
+    );
 }
 
 function closeTrailer() {
@@ -310,16 +427,19 @@ function closeTrailer() {
     $("#trailerModal").modal("hide");
 }
 
-$(document).ready(function() {
-    $('#movieSelect').select2({
-        placeholder: "Search for a movie...",
-        allowClear: true,
-        width: '50%'
-    });
+/* -------- INFO MODAL -------- */
+function showInfoModal(title, year, poster, details, rating) {
+    $("#infoTitle").text(title);
+    $("#infoYear").text(year);
+    $("#infoPoster").attr("src", poster || "https://via.placeholder.com/300x450?text=No+Image");
+    $("#infoDetails").text(details);
+    $("#infoRating").text(rating);
+    $("#infoModal").modal("show");
+}
 
-    $('#movieSelect').on('select2:open', function() {
-        document.querySelector('.select2-search__field').focus();
-    });
+/* -------- THEME + SELECT2 -------- */
+$(document).ready(function() {
+    $('#movieSelect').select2({ width:"100%", placeholder:"Search movie..." });
 
     function applyTheme(theme) {
         if (theme === 'light') {
@@ -331,12 +451,10 @@ $(document).ready(function() {
         }
     }
 
-    var storedTheme = localStorage.getItem('theme') || 'dark';
-    applyTheme(storedTheme);
+    applyTheme(localStorage.getItem('theme') || 'dark');
 
     $('#themeToggle').on('click', function() {
-        var current = $('body').hasClass('light-theme') ? 'light' : 'dark';
-        var next = current === 'light' ? 'dark' : 'light';
+        const next = $('body').hasClass('light-theme') ? 'dark' : 'light';
         localStorage.setItem('theme', next);
         applyTheme(next);
     });

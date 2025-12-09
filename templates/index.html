@@ -4,166 +4,245 @@
     <meta charset="UTF-8">
     <title>My Movie Recommender</title>
 
+    <!-- Bootstrap 3 -->
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7Zvh4l9WvvoEH3sl0sibVcOQVnN"
-          crossorigin="anonymous">
+          href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
     <style>
+        /* ===== GLOBAL THEME ===== */
         body {
-            background-color: #000;
+            background: radial-gradient(circle at top, #222 0%, #000 55%, #020716 100%);
             color: #fff;
+            min-height: 100vh;
         }
 
         body.light-theme {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf5 100%);
             color: #000;
         }
 
-        body.light-theme .panel {
-            background-color: #fff;
-            color: #000;
+        /* ===== GLASS NAVBAR (NON-FLOAT) ===== */
+        .glass-nav {
+            /* removed position:fixed & centering */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
         }
 
-        body.light-theme .navbar {
-            background-color: #f8f8f8 !important;
-            border-color: #e7e7e7;
+        body.light-theme .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
         }
 
-        body.light-theme .navbar-brand,
-        body.light-theme .navbar-nav > li > a {
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            color: #fff !important;
+            transition: 0.3s;
+        }
+
+        body.light-theme .navbar-brand {
             color: #000 !important;
         }
 
-        .navbar-brand, .navbar-nav > li > a {
+        .nav > li > a {
+            font-weight: 600;
+            color: #ddd !important;
+            font-size: 14px;
+            padding: 8px 14px !important;
+            border-radius: 999px;
+            transition: 0.2s ease;
+        }
+
+        .nav > li > a:hover {
+            background: rgba(255, 255, 255, 0.12);
             color: #fff !important;
         }
 
-        .hero {
-            margin-top: 60px;
+        /* Active tab glow */
+        .nav > li.active > a {
+            background: linear-gradient(135deg, #2962ff, #00bcd4);
+            color: #fff !important;
+            box-shadow: 0 0 14px rgba(0, 188, 212, 0.8);
+        }
+
+        body.light-theme .nav > li > a {
+            color: #444 !important;
+        }
+
+        body.light-theme .nav > li > a:hover {
+            background: rgba(0, 0, 0, 0.06);
+            color: #000 !important;
+        }
+
+        body.light-theme .nav > li.active > a {
+            box-shadow: 0 0 14px rgba(33, 150, 243, 0.7);
+        }
+
+        .btn-theme-toggle {
+            background: linear-gradient(135deg, #00c853, #64dd17);
+            border: none;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 999px;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(0, 200, 83, 0.35);
+            transition: 0.2s;
+        }
+
+        .btn-theme-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 200, 83, 0.55);
+        }
+
+        /* ===== PAGE WRAPPER ===== */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 40px auto 60px auto; /* normal top margin now */
             text-align: center;
         }
 
-        .hero h1 {
-            font-size: 48px;
-            margin-bottom: 10px;
+        .page-title {
+            font-size: 44px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        .hero p {
-            font-size: 16px;
-            color: #ddd;
+        .page-subtitle {
+            font-size: 15px;
+            color: #bbbbbb;
+            margin-bottom: 30px;
         }
 
-        body.light-theme .hero p {
+        body.light-theme .page-subtitle {
             color: #555;
         }
 
-        .mode-toggle-btn {
-            margin-right: 15px;
+        /* ===== FEATURE CARDS ===== */
+        .feature-card {
+            margin-top: 25px;
         }
 
-        .reco-card {
-            margin-top: 40px;
+        .feature-card .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+            transition: 0.2s ease;
         }
 
-        .reco-card .panel {
-            background-color: #111;
-            border-radius: 8px;
-            border: 1px solid #333;
+        .feature-card .panel:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8);
+            border-color: rgba(0, 188, 212, 0.8);
         }
 
-        .reco-card .panel-heading {
-            border-bottom: none;
+        body.light-theme .feature-card .panel {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
         }
 
-        body.light-theme .reco-card .panel {
-            background-color: #fff;
-            border-color: #ddd;
+        body.light-theme .feature-card .panel:hover {
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.16);
+            border-color: rgba(0, 188, 212, 0.6);
         }
 
-                .btn-content {
-            background-color: #337ab7;   /* blue */
-            border-color: #2e6da4;
-            color: #fff;
-            border-radius: 25px;        /* pill shape (optional) */
-            padding: 8px 20px;
+        .feature-card .panel-body {
+            font-size: 14px;
+            color: #ddd;
+        }
+
+        body.light-theme .feature-card .panel-body {
+            color: #444;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-content {
+            background: linear-gradient(135deg, #2962ff, #00bcd4);
+            border: none;
+            color: #fff !important;
+            border-radius: 999px;
+            padding: 8px 22px;
             font-weight: 600;
-        }
-
-        .btn-content:hover,
-        .btn-content:focus {
-            background-color: #286090;
-            border-color: #204d74;
-            color: #fff;
+            margin-top: 10px;
         }
 
         .btn-collab {
-            background-color: #00a65a;  /* green to match navbar */
-            border-color: #008f4f;
-            color: #fff;
-            border-radius: 25px;        /* pill shape (optional) */
-            padding: 8px 20px;
+            background: linear-gradient(135deg, #00c853, #64dd17);
+            border: none;
+            color: #fff !important;
+            border-radius: 999px;
+            padding: 8px 22px;
             font-weight: 600;
+            margin-top: 10px;
         }
-
-        .btn-collab:hover,
-        .btn-collab:focus {
-            background-color: #008f4f;
-            border-color: #007a43;
-            color: #fff;
-        }
-
     </style>
 </head>
 <body>
 
-<nav class="navbar" style="background-color:#00a65a">
+<nav class="navbar glass-nav">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="{{ url_for('home') }}">My Movie Recommender</a>
         </div>
+
         <ul class="nav navbar-nav">
             <li class="active"><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('content_page') }}">Content Based</a></li>
             <li><a href="{{ url_for('collab_page') }}">Collaborative</a></li>
         </ul>
 
-        <button id="themeToggle" class="btn btn-default navbar-btn navbar-right mode-toggle-btn">
+        <button id="themeToggle" class="btn btn-theme-toggle navbar-btn navbar-right">
             Light Mode
         </button>
     </div>
 </nav>
 
-<div class="container">
-    <div class="hero">
-        <h1>Welcome to My Movie Recommender</h1>
-        <p>Discover movies using <strong>content-based</strong> similarity or <strong>collaborative</strong> filtering.</p>
-        <p>Choose a method below to get started.</p>
+<div class="page-wrapper">
+    <h1 class="page-title">Welcome to My Movie Recommender</h1>
+    <div class="page-subtitle">
+        Discover movies using <strong>content-based similarity</strong> or
+        <strong>collaborative filtering</strong>.
     </div>
 
     <div class="row">
-        <div class="col-sm-6 reco-card">
+        <div class="col-sm-6 feature-card">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Content-Based Recommender</h3>
                 </div>
                 <div class="panel-body">
-                    <p>Find movies similar in content (genre, overview, etc.) to a movie you love.</p>
-                    <a href="{{ url_for('content_page') }}" class="btn btn-content">Go to Content-Based</a>
-
+                    <p>
+                        Find movies that are similar in <strong>genre</strong>, <strong>overview</strong>,
+                        and other content features to a movie you already like.
+                    </p>
+                    <a href="{{ url_for('content_page') }}" class="btn btn-content">
+                        Go to Content-Based
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-sm-6 reco-card">
+        <div class="col-sm-6 feature-card">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Collaborative Filtering</h3>
                 </div>
                 <div class="panel-body">
-                    <p>Discover movies liked by other users who enjoyed the same titles.</p>
-                    <a href="{{ url_for('collab_page') }}" class="btn btn-collab">Go to Collaborative</a>
-
+                    <p>
+                        Discover titles that other users enjoyed when they liked
+                        the <strong>same movies</strong> as you.
+                    </p>
+                    <a href="{{ url_for('collab_page') }}" class="btn btn-collab">
+                        Go to Collaborative
+                    </a>
                 </div>
             </div>
         </div>
@@ -171,9 +250,7 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfHgbbYVBoPsW7Zvh4l9WvvoEH3sl0sibVcOQVnN"
-        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <script>
 (function() {
@@ -187,12 +264,10 @@
         }
     }
 
-    var storedTheme = localStorage.getItem('theme') || 'dark';
-    applyTheme(storedTheme);
+    applyTheme(localStorage.getItem('theme') || 'dark');
 
     $('#themeToggle').on('click', function() {
-        var current = $('body').hasClass('light-theme') ? 'light' : 'dark';
-        var next = current === 'light' ? 'dark' : 'light';
+        const next = $('body').hasClass('light-theme') ? 'dark' : 'light';
         localStorage.setItem('theme', next);
         applyTheme(next);
     });

@@ -182,7 +182,7 @@ def recommend_content(movie):
 
     recommended = []
     # skip [0] because it's the same movie
-    for i in distances[1:6]:
+    for i in distances[0:5]:
         movie_id = int(movies_list.iloc[i[0]].movie_id)
         meta = fetch_movie_data(movie_id)
 
