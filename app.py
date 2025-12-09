@@ -3,15 +3,36 @@ import pickle
 import numpy as np
 import requests
 import pandas as pd
+import os
 
 app = Flask(__name__)
+
+def download_if_missing(url, path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    if not os.path.exists(path):
+        print(f"Downloading large model from: {url}")
+        r = requests.get(url, stream=True)
+        r.raise_for_status()
+        with open(path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+# Direct download URL for Google Drive
+SIMILARITY_URL = "https://drive.google.com/uc?export=download&id=1dzMH_3hp7-Y04hQfW8fJPo5CRqe8Nw8s"
+SIMILARITY_PATH = "model/content_pkl/similarity.pkl"
+
+download_if_missing(SIMILARITY_URL, SIMILARITY_PATH)
+
+# Now load the file normally
+
 
 # ===================================================================
 # ----------------------- CONTENT BASED DATA -------------------------
 # ===================================================================
 
 movies_list = pickle.load(open('model/content_pkl/movie_list.pkl', 'rb'))
-similarity_content = pickle.load(open('model/content_pkl/similarity.pkl', 'rb'))
+similarity_content = pickle.load(open(SIMILARITY_PATH, "rb"))
 
 # ===================================================================
 # -------------------- COLLABORATIVE FILTERING DATA ------------------
