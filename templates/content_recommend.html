@@ -62,16 +62,70 @@
             background: #fff !important;
         }
 
-        .movie-card {
-            margin-top: 30px;
-        }
+            .movie-card {
+        margin-top: 30px;
+    }
 
-        .movie-poster {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
+    .movie-card .card {
+        background: transparent;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .movie-poster {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 4px;
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    /* Darken + slightly zoom poster on hover */
+    .movie-card:hover .movie-poster {
+        transform: scale(1.05);
+        filter: brightness(0.5);
+    }
+
+    /* Hover overlay */
+    .movie-hover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+        overflow-y: auto;
+        font-size: 12px;
+    }
+
+    .movie-card:hover .movie-hover {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .hover-title {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .hover-meta {
+        font-size: 11px;
+        margin-bottom: 5px;
+        color: #ccc;
+    }
+
+    .hover-overview {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
     </style>
 </head>
 
@@ -127,22 +181,38 @@
         </div>
 
         {% if recommendations %}
-            {% for rec in recommendations %}
-                <div class="col-md-2 movie-card">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            {% if rec.poster %}
-                                <img src="{{ rec.poster }}" alt="{{ rec.title }}" class="movie-poster">
-                            {% endif %}
-                            <h4 class="text-white" style="margin-top:10px;">{{ rec.title }}</h4>
-                            {% if rec.movie_id is defined %}
-                                <p class="text-white">ID: {{ rec.movie_id }}</p>
-                            {% endif %}
-                        </div>
+    {% for rec in recommendations %}
+        <div class="col-md-2 movie-card">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if rec.poster %}
+                        <img src="{{ rec.poster }}" alt="{{ rec.title }}" class="movie-poster">
+                    {% endif %}
+                    <h4 class="text-white" style="margin-top:10px;">{{ rec.title }}</h4>
+                    <p class="text-white">ID: {{ rec.movie_id }}</p>
+
+                    <!-- HOVER OVERLAY -->
+                    <div class="movie-hover text-left">
+                        <div class="hover-title">{{ rec.title }}</div>
+                        <div class="hover-meta">ID: {{ rec.movie_id }}</div>
+
+                        {% if rec.details is defined %}
+                            <div class="hover-overview">
+                                {{ rec.details|replace('\n', '<br>')|safe }}
+                            </div>
+                        {% else %}
+                            <div class="hover-overview">
+                                No extra details available.
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-            {% endfor %}
-        {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+
     </div>
 </div>
 
@@ -167,6 +237,11 @@ $(document).ready(function() {
 
     $('#movieSelect').on('select2:open', function() {
         document.querySelector('.select2-search__field').focus();
+    });
+
+    // 🔥 Enable Bootstrap tooltips for hover details
+    $('[data-toggle="tooltip"]').tooltip({
+        container: 'body'
     });
 });
 </script>

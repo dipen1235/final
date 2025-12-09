@@ -116,13 +116,32 @@ print(f"DEBUG: movies.csv rows = {len(movies)}")
 # ------------------------ HELPER FUNCTIONS --------------------------
 # ===================================================================
 
-def fetch_poster(movie_id):
+def fetch_movie_data(movie_id):
+    """
+    Fetch poster URL and a short details string for tooltips.
+    """
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c4e0cda33ee220d70e5882632cec6bc8&language=en-US"
     data = requests.get(url).json()
+
     poster_path = data.get('poster_path')
     if poster_path:
-        return "https://image.tmdb.org/t/p/original" + poster_path
-    return "https://via.placeholder.com/300x450?text=No+Image"
+        poster_url = "https://image.tmdb.org/t/p/original" + poster_path
+    else:
+        poster_url = "https://via.placeholder.com/300x450?text=No+Image"
+
+    title = data.get("title") or data.get("original_title") or "Unknown title"
+    release_date = data.get("release_date", "Unknown date")
+    rating = data.get("vote_average", "N/A")
+    overview = data.get("overview", "No overview available.")
+
+    # Shorten overview a bit so tooltip isn't insanely long
+    if overview and len(overview) > 250:
+        overview = overview[:250].rstrip() + "..."
+
+    details = f"{title} ({release_date})\nRating: {rating}\n\n{overview}"
+
+    return poster_url, details
+
 
 
 # -------- CONTENT BASED ----------
@@ -154,16 +173,20 @@ def recommend_content(movie):
     )
 
     recommended = []
-    for i in distances[1:6]:   # skip [0] because it's the same movie
-        movie_id = movies_list.iloc[i[0]].movie_id
+    # skip [0] because it's the same movie
+    for i in distances[1:6]:
+        movie_id = int(movies_list.iloc[i[0]].movie_id)
+        poster_url, details = fetch_movie_data(movie_id)
         recommended.append({
             "title": movies_list.iloc[i[0]].title,
-            "movie_id": int(movie_id),
-            "poster": fetch_poster(movie_id)
+            "movie_id": movie_id,
+            "poster": poster_url,
+            "details": details,   # 👈 for tooltip
         })
 
     print(f"DEBUG: recommend_content for '{movie}' returned {len(recommended)} items.")
     return recommended
+
 
 
 # -------- COLLABORATIVE FILTERING ----------
@@ -194,14 +217,18 @@ def recommend_collab(movie_name):
         title = temp_df['original_title'].values[0]
         movie_id = int(temp_df['movie_id'].values[0])
 
+        poster_url, details = fetch_movie_data(movie_id)
+
         recommendations.append({
             "title": title,
             "movie_id": movie_id,
-            "poster": fetch_poster(movie_id)
+            "poster": poster_url,
+            "details": details,   # 👈 for tooltip
         })
 
     print(f"DEBUG: recommend_collab for '{movie_name}' returned {len(recommendations)} items.")
     return recommendations
+
 
 
 # ===================================================================
